@@ -1,1 +1,769 @@
 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚽ Mi Álbum Panini – FIFA World Cup 2026</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #21262d;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --green: #2ea043;
+    --green-bg: #0d2a14;
+    --green-text: #56d364;
+    --gold: #d29922;
+    --gold-bg: #2a1f0d;
+    --gold-text: #e3b341;
+    --red: #da3633;
+    --accent: #1f6feb;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* HEADER */
+  .app-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .app-title { font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .app-title span { color: var(--muted); font-weight: 400; font-size: 13px; }
+  .header-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  /* BUTTONS */
+  button {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+  button:hover { background: #2d333b; border-color: #444c56; }
+  button.primary { background: var(--green); border-color: var(--green); color: #fff; }
+  button.primary:hover { background: #2ea043cc; }
+  button.danger { background: var(--surface2); border-color: var(--red); color: var(--red); }
+  button.danger:hover { background: #2a1010; }
+
+  /* STATS BAR */
+  .stats-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .stat { display: flex; flex-direction: column; align-items: center; min-width: 60px; }
+  .stat-val { font-size: 22px; font-weight: 700; line-height: 1; }
+  .stat-val.green { color: var(--green-text); }
+  .stat-val.gold  { color: var(--gold-text); }
+  .stat-val.red   { color: #f85149; }
+  .stat-val.muted { color: var(--muted); }
+  .stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .progress-wrap { flex: 1; min-width: 160px; }
+  .progress-info { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+  .progress-track { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--green), #56d364); border-radius: 3px; transition: width 0.5s ease; }
+
+  /* CONTROLS */
+  .controls {
+    padding: 12px 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+  input[type="text"] {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  input[type="text"]:focus { border-color: var(--accent); }
+  #codeInput { width: 140px; font-family: 'Courier New', monospace; text-transform: uppercase; }
+  #searchInput { width: 200px; }
+
+  .filter-pills { display: flex; gap: 4px; }
+  .pill {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .pill:hover { color: var(--text); border-color: #444c56; background: var(--surface2); }
+  .pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .pill.active:hover { background: #1f6febcc; }
+
+  /* MAIN */
+  .main { padding: 16px 20px; max-width: 1400px; margin: 0 auto; }
+
+  /* GROUP SECTION */
+  .group-section { margin-bottom: 16px; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .group-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: var(--surface);
+    cursor: pointer;
+    user-select: none;
+    gap: 10px;
+  }
+  .group-header:hover { background: var(--surface2); }
+  .group-label { display: flex; align-items: center; gap: 10px; }
+  .group-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: var(--surface2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .group-name { font-size: 14px; font-weight: 600; }
+  .group-progress { font-size: 12px; color: var(--muted); }
+  .group-progress .done { color: var(--green-text); font-weight: 600; }
+  .chevron { font-size: 12px; color: var(--muted); transition: transform 0.2s; }
+  .chevron.open { transform: rotate(180deg); }
+
+  /* TEAMS GRID */
+  .teams-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1px;
+    background: var(--border);
+  }
+  .team-card {
+    background: var(--bg);
+    padding: 12px 14px;
+  }
+  .team-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .team-name-row { display: flex; align-items: center; gap: 6px; }
+  .team-flag { font-size: 20px; line-height: 1; }
+  .team-name { font-size: 13px; font-weight: 600; }
+  .team-code { font-size: 10px; color: var(--muted); font-family: 'Courier New', monospace; }
+  .team-count { font-size: 11px; color: var(--muted); }
+  .team-count .n { font-weight: 700; color: var(--green-text); }
+
+  /* STICKER GRID */
+  .sticker-grid { display: flex; flex-wrap: wrap; gap: 3px; }
+  .stk {
+    width: 28px;
+    height: 34px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    transition: transform 0.1s, background 0.12s, border-color 0.12s;
+    position: relative;
+    user-select: none;
+  }
+  .stk:hover { transform: scale(1.12); z-index: 1; }
+  .stk .snum { font-size: 9px; }
+  .stk.foil { border-style: dashed; }
+  .stk.owned {
+    background: var(--green-bg);
+    border-color: var(--green);
+    color: var(--green-text);
+  }
+  .stk.repeated {
+    background: var(--gold-bg);
+    border-color: var(--gold);
+    color: var(--gold-text);
+  }
+  .stk.repeated::after {
+    content: '+1';
+    position: absolute;
+    top: 1px;
+    right: 2px;
+    font-size: 7px;
+    font-weight: 800;
+    color: var(--gold-text);
+  }
+
+  /* SPECIAL SECTIONS */
+  .special-section {
+    background: var(--bg);
+    padding: 12px 14px;
+  }
+  .special-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .special-title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .special-sub { font-size: 11px; color: var(--muted); }
+
+  /* TOOLTIP */
+  .stk[title]:hover::before {
+    content: attr(title);
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1c2128;
+    color: var(--text);
+    font-size: 10px;
+    padding: 3px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 999;
+    border: 1px solid var(--border);
+  }
+
+  /* EMPTY STATE */
+  .empty { padding: 20px; text-align: center; color: var(--muted); font-size: 13px; }
+
+  /* FILE INPUT */
+  #fileInput { display: none; }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    gap: 14px;
+    padding: 8px 20px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .leg { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); }
+  .leg-dot { width: 12px; height: 12px; border-radius: 3px; border: 1px solid; }
+
+  @media (max-width: 600px) {
+    .app-header { padding: 10px 12px; }
+    .main { padding: 10px 12px; }
+    .controls { padding: 10px 12px; }
+    #searchInput { width: 140px; }
+    .teams-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-title">
+    ⚽ Mi Álbum Panini <span>FIFA World Cup 2026™</span>
+  </div>
+  <div class="header-actions">
+    <button onclick="exportData()">⬇ Exportar</button>
+    <button onclick="document.getElementById('fileInput').click()">⬆ Importar</button>
+    <button class="danger" onclick="if(confirm('¿Resetear todo el álbum?')) resetAll()">🗑 Reset</button>
+    <input type="file" id="fileInput" accept=".json" onchange="importData(event)">
+  </div>
+</header>
+
+<div class="stats-bar">
+  <div class="stat"><div class="stat-val green" id="s-have">0</div><div class="stat-label">Tengo</div></div>
+  <div class="stat"><div class="stat-val red" id="s-miss">980</div><div class="stat-label">Me faltan</div></div>
+  <div class="stat"><div class="stat-val gold" id="s-rep">0</div><div class="stat-label">Repetidas</div></div>
+  <div class="stat"><div class="stat-val muted">980</div><div class="stat-label">Total</div></div>
+  <div class="progress-wrap">
+    <div class="progress-info"><span>Progreso del álbum</span><span id="s-pct">0%</span></div>
+    <div class="progress-track"><div class="progress-fill" id="pbar" style="width:0%"></div></div>
+  </div>
+</div>
+
+<div class="controls">
+  <input type="text" id="codeInput" placeholder="Código: ARG10, MEX1…" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')markCode()">
+  <button class="primary" onclick="markCode()">✔ Marcar</button>
+  <span style="color:var(--muted);font-size:12px;">|</span>
+  <input type="text" id="searchInput" placeholder="🔍 Buscar equipo…" oninput="render()">
+  <span style="color:var(--muted);font-size:12px;">|</span>
+  <div class="filter-pills">
+    <button class="pill active" onclick="setFilter('all',this)">Todas</button>
+    <button class="pill" onclick="setFilter('missing',this)">Me faltan</button>
+    <button class="pill" onclick="setFilter('owned',this)">Tengo</button>
+    <button class="pill" onclick="setFilter('repeated',this)">Repetidas</button>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="leg"><div class="leg-dot" style="border-color:#30363d;background:#21262d"></div>Falta</div>
+  <div class="leg"><div class="leg-dot" style="border-color:#2ea043;background:#0d2a14"></div>Tengo (clic 1×)</div>
+  <div class="leg"><div class="leg-dot" style="border-color:#d29922;background:#2a1f0d"></div>Repetida (clic 2×)</div>
+  <div class="leg" style="margin-left:auto;font-size:11px;">⬡ = foil especial &nbsp;·&nbsp; Clic para cambiar estado</div>
+</div>
+
+<main class="main" id="mainContent"></main>
+
+<script>
+// ─── DATA ──────────────────────────────────────────────────────────────
+const SPECIALS = [
+  {
+    name: 'Introducción & Presentación',
+    code: 'INT', count: 9,
+    foils: [1,2,3],
+    emoji: '🏆',
+    desc: '9 figuritas de apertura, emblema y mascota'
+  },
+  {
+    name: 'FIFA Museum — Campeones Históricos',
+    code: 'FWC', count: 11,
+    foils: [1],
+    emoji: '🥇',
+    desc: '11 figuritas de los campeones del mundo'
+  }
+];
+
+const GROUPS = [
+  { group: 'A', teams: [
+    { name: 'Mexico',           code: 'MEX', flag: '🇲🇽' },
+    { name: 'South Africa',     code: 'RSA', flag: '🇿🇦' },
+    { name: 'Korea Republic',   code: 'KOR', flag: '🇰🇷' },
+    { name: 'Czechia',          code: 'CZE', flag: '🇨🇿' },
+  ]},
+  { group: 'B', teams: [
+    { name: 'Canada',                   code: 'CAN', flag: '🇨🇦' },
+    { name: 'Bosnia and Herzegovina',   code: 'BIH', flag: '🇧🇦' },
+    { name: 'Qatar',                    code: 'QAT', flag: '🇶🇦' },
+    { name: 'Switzerland',              code: 'SUI', flag: '🇨🇭' },
+  ]},
+  { group: 'C', teams: [
+    { name: 'Brazil',   code: 'BRA', flag: '🇧🇷' },
+    { name: 'Morocco',  code: 'MAR', flag: '🇲🇦' },
+    { name: 'Haiti',    code: 'HAI', flag: '🇭🇹' },
+    { name: 'Scotland', code: 'SCO', flag: '🏴󠁧󠁢󠁳󠁣󠁴󠁿' },
+  ]},
+  { group: 'D', teams: [
+    { name: 'United States', code: 'USA', flag: '🇺🇸' },
+    { name: 'Paraguay',      code: 'PAR', flag: '🇵🇾' },
+    { name: 'Australia',     code: 'AUS', flag: '🇦🇺' },
+    { name: 'Austria',       code: 'AUT', flag: '🇦🇹' },
+  ]},
+  { group: 'E', teams: [
+    { name: 'Germany',       code: 'GER', flag: '🇩🇪' },
+    { name: 'Curaçao',       code: 'CUW', flag: '🇨🇼' },
+    { name: "Côte d'Ivoire", code: 'CIV', flag: '🇨🇮' },
+    { name: 'Ecuador',       code: 'ECU', flag: '🇪🇨' },
+  ]},
+  { group: 'F', teams: [
+    { name: 'Netherlands', code: 'NED', flag: '🇳🇱' },
+    { name: 'Japan',       code: 'JPN', flag: '🇯🇵' },
+    { name: 'Sweden',      code: 'SWE', flag: '🇸🇪' },
+    { name: 'Tunisia',     code: 'TUN', flag: '🇹🇳' },
+  ]},
+  { group: 'G', teams: [
+    { name: 'Belgium',     code: 'BEL', flag: '🇧🇪' },
+    { name: 'Egypt',       code: 'EGY', flag: '🇪🇬' },
+    { name: 'IR Iran',     code: 'IRN', flag: '🇮🇷' },
+    { name: 'New Zealand', code: 'NZL', flag: '🇳🇿' },
+  ]},
+  { group: 'H', teams: [
+    { name: 'Spain',        code: 'ESP', flag: '🇪🇸' },
+    { name: 'Saudi Arabia', code: 'KSA', flag: '🇸🇦' },
+    { name: 'Cape Verde',   code: 'CPV', flag: '🇨🇻' },
+    { name: 'Uruguay',      code: 'URU', flag: '🇺🇾' },
+  ]},
+  { group: 'I', teams: [
+    { name: 'France',   code: 'FRA', flag: '🇫🇷' },
+    { name: 'Senegal',  code: 'SEN', flag: '🇸🇳' },
+    { name: 'DR Congo', code: 'COD', flag: '🇨🇩' },
+    { name: 'Norway',   code: 'NOR', flag: '🇳🇴' },
+  ]},
+  { group: 'J', teams: [
+    { name: 'Argentina', code: 'ARG', flag: '🇦🇷' },
+    { name: 'Algeria',   code: 'ALG', flag: '🇩🇿' },
+    { name: 'Austria',   code: 'AUT', flag: '🇦🇹' },
+    { name: 'Jordan',    code: 'JOR', flag: '🇯🇴' },
+  ]},
+  { group: 'K', teams: [
+    { name: 'Portugal',   code: 'POR', flag: '🇵🇹' },
+    { name: 'Uzbekistan', code: 'UZB', flag: '🇺🇿' },
+    { name: 'Colombia',   code: 'COL', flag: '🇨🇴' },
+    { name: 'Iraq',       code: 'IRQ', flag: '🇮🇶' },
+  ]},
+  { group: 'L', teams: [
+    { name: 'England', code: 'ENG', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
+    { name: 'Croatia', code: 'CRO', flag: '🇭🇷' },
+    { name: 'Ghana',   code: 'GHA', flag: '🇬🇭' },
+    { name: 'Panama',  code: 'PAN', flag: '🇵🇦' },
+  ]},
+];
+
+// ─── STATE ─────────────────────────────────────────────────────────────
+let state = {};
+let filter = 'all';
+let collapsed = {};
+
+const STORE_KEY = 'panini_wc26_v2';
+const COLL_KEY  = 'panini_wc26_coll';
+
+function load() {
+  try { state = JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch(e) { state = {}; }
+  try { collapsed = JSON.parse(localStorage.getItem(COLL_KEY) || '{}'); } catch(e) { collapsed = {}; }
+}
+function save() {
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify(state));
+    localStorage.setItem(COLL_KEY, JSON.stringify(collapsed));
+  } catch(e) {}
+}
+
+function getS(code, n) { return state[code + n] || 'missing'; }
+function cycleS(code, n) {
+  const k = code + n;
+  const cur = state[k] || 'missing';
+  if (cur === 'missing') state[k] = 'owned';
+  else if (cur === 'owned') state[k] = 'repeated';
+  else delete state[k];
+  save();
+  updateStats();
+  // re-render just this sticker
+  const el = document.querySelector(`.stk[data-key="${k}"]`);
+  if (el) {
+    const newS = state[k] || 'missing';
+    el.className = 'stk' + (el.dataset.foil === '1' ? ' foil' : '') + (newS !== 'missing' ? ' ' + newS : '');
+    el.title = `${code}${n}${el.dataset.foil==='1'?' ★':''} — ${newS}`;
+    updateTeamCount(code);
+    updateGroupProgress(el.dataset.group);
+  }
+}
+
+function updateTeamCount(code) {
+  const el = document.querySelector(`[data-teamcount="${code}"]`);
+  if (!el) return;
+  const team = findTeam(code) || findSpecial(code);
+  if (!team) return;
+  let owned = 0;
+  for (let i = 1; i <= team.count; i++) {
+    const s = getS(code, i);
+    if (s !== 'missing') owned++;
+  }
+  const n = el.querySelector('.n');
+  if (n) n.textContent = owned;
+}
+
+function updateGroupProgress(groupId) {
+  if (!groupId) return;
+  const el = document.querySelector(`[data-groupprog="${groupId}"]`);
+  if (!el) return;
+  const grp = GROUPS.find(g => g.group === groupId);
+  if (!grp) return;
+  let owned = 0, total = 0;
+  grp.teams.forEach(t => {
+    for (let i = 1; i <= 20; i++) { total++; if (getS(t.code, i) !== 'missing') owned++; }
+  });
+  el.innerHTML = `<span class="done">${owned}</span>/${total}`;
+}
+
+function findTeam(code) {
+  for (const g of GROUPS) {
+    const t = g.teams.find(t => t.code === code);
+    if (t) return { ...t, count: 20, foils: [1, 13] };
+  }
+  return null;
+}
+function findSpecial(code) {
+  return SPECIALS.find(s => s.code === code) || null;
+}
+
+// ─── STATS ─────────────────────────────────────────────────────────────
+function computeStats() {
+  let owned = 0, rep = 0;
+  const TOTAL = 980;
+  Object.values(state).forEach(v => {
+    if (v === 'owned') owned++;
+    else if (v === 'repeated') rep++;
+  });
+  return { owned, rep, missing: TOTAL - owned - rep, total: TOTAL, have: owned + rep };
+}
+
+function updateStats() {
+  const s = computeStats();
+  document.getElementById('s-have').textContent = s.have;
+  document.getElementById('s-miss').textContent = s.missing;
+  document.getElementById('s-rep').textContent = s.rep;
+  const pct = Math.round(s.have / s.total * 100);
+  document.getElementById('s-pct').textContent = pct + '%';
+  document.getElementById('pbar').style.width = pct + '%';
+}
+
+// ─── MARK BY CODE ──────────────────────────────────────────────────────
+function markCode() {
+  const raw = document.getElementById('codeInput').value.trim().toUpperCase();
+  if (!raw) return;
+  const m = raw.match(/^([A-Z]+)(\d+)$/);
+  if (!m) { alert('Formato inválido.\nEjemplos: ARG10, MEX1, COL5, INT2'); return; }
+  const [, code, numStr] = m;
+  const n = parseInt(numStr);
+  const team = findTeam(code) || findSpecial(code);
+  if (!team) { alert('Código de equipo no encontrado: ' + code + '\nRevisa la lista de códigos.'); return; }
+  if (n < 1 || n > team.count) { alert(`Número fuera de rango. ${code} tiene figuritas del 1 al ${team.count}.`); return; }
+  cycleS(code, n);
+  document.getElementById('codeInput').value = '';
+  document.getElementById('codeInput').focus();
+}
+
+// ─── RENDER ────────────────────────────────────────────────────────────
+function buildStickerGrid(code, count, foils, groupId) {
+  let html = '';
+  const foilSet = new Set(foils || []);
+  for (let i = 1; i <= count; i++) {
+    const st = getS(code, i);
+    if (filter !== 'all' && st !== filter && !(filter === 'missing' && st === 'missing')) continue;
+    const isFoil = foilSet.has(i);
+    const cls = ['stk', isFoil ? 'foil' : '', st !== 'missing' ? st : ''].filter(Boolean).join(' ');
+    const label = isFoil ? '⬡' : i;
+    const stateLabel = st === 'missing' ? 'falta' : st === 'owned' ? '✔' : '×2';
+    html += `<div class="${cls}" 
+      data-key="${code}${i}"
+      data-code="${code}"
+      data-n="${i}"
+      data-foil="${isFoil ? 1 : 0}"
+      data-group="${groupId || ''}"
+      title="${code}${i}${isFoil ? ' ★' : ''} — ${stateLabel}"
+      onclick="cycleS('${code}', ${i})">
+      <span class="snum">${label}</span>
+    </div>`;
+  }
+  return html || '<span style="font-size:11px;color:var(--muted)">–</span>';
+}
+
+function buildTeamCard(team, groupId) {
+  let owned = 0;
+  for (let i = 1; i <= 20; i++) { if (getS(team.code, i) !== 'missing') owned++; }
+
+  // Check if any stickers pass the current filter
+  let hasVisible = false;
+  if (filter === 'all') {
+    hasVisible = true;
+  } else {
+    for (let i = 1; i <= 20; i++) {
+      const s = getS(team.code, i);
+      if (filter === 'missing' && s === 'missing') { hasVisible = true; break; }
+      if (filter === s) { hasVisible = true; break; }
+    }
+  }
+  if (!hasVisible) return '';
+
+  return `
+    <div class="team-card">
+      <div class="team-header">
+        <div class="team-name-row">
+          <span class="team-flag">${team.flag}</span>
+          <div>
+            <div class="team-name">${team.name}</div>
+            <div class="team-code">${team.code}</div>
+          </div>
+        </div>
+        <div class="team-count" data-teamcount="${team.code}">
+          <span class="n">${owned}</span>/20
+        </div>
+      </div>
+      <div class="sticker-grid">${buildStickerGrid(team.code, 20, [1, 13], groupId)}</div>
+    </div>`;
+}
+
+function buildSpecialCard(sec) {
+  let owned = 0;
+  for (let i = 1; i <= sec.count; i++) { if (getS(sec.code, i) !== 'missing') owned++; }
+
+  let hasVisible = false;
+  if (filter === 'all') hasVisible = true;
+  else {
+    for (let i = 1; i <= sec.count; i++) {
+      const s = getS(sec.code, i);
+      if (filter === 'missing' && s === 'missing') { hasVisible = true; break; }
+      if (filter === s) { hasVisible = true; break; }
+    }
+  }
+  if (!hasVisible) return '';
+
+  return `
+    <div class="special-section">
+      <div class="special-header">
+        <span style="font-size:20px">${sec.emoji}</span>
+        <div>
+          <div class="special-title">${sec.name}</div>
+          <div class="special-sub">${sec.desc}</div>
+        </div>
+        <div style="margin-left:auto;font-size:12px;color:var(--muted)" data-teamcount="${sec.code}">
+          <span class="n">${owned}</span>/${sec.count}
+        </div>
+      </div>
+      <div class="sticker-grid">${buildStickerGrid(sec.code, sec.count, sec.foils, null)}</div>
+    </div>`;
+}
+
+function render() {
+  const search = document.getElementById('searchInput').value.trim().toLowerCase();
+  const main = document.getElementById('mainContent');
+  let html = '';
+
+  // Special sections
+  const specHtml = SPECIALS.map(s => {
+    if (search && !s.name.toLowerCase().includes(search) && !s.code.toLowerCase().includes(search)) return '';
+    return buildSpecialCard(s);
+  }).filter(Boolean).join('');
+
+  if (specHtml) {
+    const gid = 'specials';
+    const isOpen = !collapsed[gid];
+    html += `
+      <div class="group-section">
+        <div class="group-header" onclick="toggleGroup('${gid}')">
+          <div class="group-label">
+            <span class="group-badge">EXTRA</span>
+            <span class="group-name">🏆 Secciones Especiales</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="group-progress">${computeSpecialsProgress()}</span>
+            <span class="chevron ${isOpen ? 'open' : ''}">▼</span>
+          </div>
+        </div>
+        ${isOpen ? `<div class="teams-grid">${specHtml}</div>` : ''}
+      </div>`;
+  }
+
+  // Groups
+  GROUPS.forEach(g => {
+    const gid = 'g' + g.group;
+    const isOpen = !collapsed[gid];
+
+    const filteredTeams = g.teams.filter(t => {
+      if (!search) return true;
+      return t.name.toLowerCase().includes(search) || t.code.toLowerCase().includes(search);
+    });
+    if (search && filteredTeams.length === 0) return;
+
+    const teamsHtml = (search ? filteredTeams : g.teams).map(t => buildTeamCard(t, g.group)).filter(Boolean).join('');
+    if (filter !== 'all' && !teamsHtml) return;
+
+    // group totals
+    let gOwned = 0;
+    g.teams.forEach(t => { for (let i = 1; i <= 20; i++) { if (getS(t.code, i) !== 'missing') gOwned++; } });
+    const gTotal = g.teams.length * 20;
+
+    html += `
+      <div class="group-section">
+        <div class="group-header" onclick="toggleGroup('${gid}')">
+          <div class="group-label">
+            <span class="group-badge">GRUPO ${g.group}</span>
+            <span class="group-name">${g.teams.map(t => t.flag).join(' ')} ${g.teams.map(t => t.name).join(' · ')}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="group-progress" data-groupprog="${g.group}"><span class="done">${gOwned}</span>/${gTotal}</span>
+            <span class="chevron ${isOpen ? 'open' : ''}">▼</span>
+          </div>
+        </div>
+        ${isOpen ? `<div class="teams-grid">${teamsHtml || '<div class="empty">Sin figuritas en este filtro</div>'}</div>` : ''}
+      </div>`;
+  });
+
+  if (!html) html = '<div class="empty">No se encontraron equipos.</div>';
+  main.innerHTML = html;
+  updateStats();
+}
+
+function computeSpecialsProgress() {
+  let owned = 0, total = 0;
+  SPECIALS.forEach(s => { total += s.count; for (let i = 1; i <= s.count; i++) { if (getS(s.code, i) !== 'missing') owned++; } });
+  return `<span class="done">${owned}</span>/${total}`;
+}
+
+function toggleGroup(gid) {
+  collapsed[gid] = !collapsed[gid];
+  save();
+  render();
+}
+
+function setFilter(f, el) {
+  filter = f;
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+// ─── IMPORT / EXPORT ───────────────────────────────────────────────────
+function exportData() {
+  const data = { version: 2, date: new Date().toISOString(), stickers: state };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `mi_album_wc26_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (data.stickers) {
+        state = data.stickers;
+        save();
+        render();
+        alert('¡Álbum importado correctamente!');
+      } else {
+        alert('Archivo inválido.');
+      }
+    } catch(err) {
+      alert('Error al leer el archivo.');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+function resetAll() {
+  state = {};
+  save();
+  render();
+}
+
+// ─── INIT ──────────────────────────────────────────────────────────────
+load();
+render();
+</script>
+</body>
+</html>
